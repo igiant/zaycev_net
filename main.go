@@ -16,6 +16,7 @@ const (
 	SCHEME = "http"
 	HOST   = "zaycev.net"
 	PATH   = "search.html"
+	CHANK  = 20
 )
 
 func init() {
@@ -29,12 +30,9 @@ func init() {
 
 //getRange возвращает диапозон значений 'min', 'max' из строки 's', либо 1 значение, если в 's' не содержится диапозон
 func getRange(s string) (min, max int) {
-	var (
-		arrRange = []string{}
-		err      error
-	)
+	var err error
 	if strings.Contains(s, "-") {
-		arrRange = strings.Split(s, "-")
+		arrRange := strings.Split(s, "-")
 		min, err = strconv.Atoi(arrRange[0])
 		if err != nil {
 			min = 1
@@ -69,6 +67,27 @@ func getRange(s string) (min, max int) {
 	return min, max
 }
 
+func trimSongs(c compositions) compositions {
+	for i := range c {
+		if c[i].artist == "" && c[i].song == "" && c[i].url == "" {
+			return c[:i]
+		}
+	}
+	return c
+}
+
+func showList(c compositions) {
+	var s string
+	for i, song := range c {
+		if (i+1) != len(c) && (i+1)%CHANK == 0 {
+			fmt.Printf("%d. %s", i+1, song)
+			_, _ = fmt.Scanln(&s)
+			continue
+		}
+		fmt.Printf("%d. %s\n", i+1, song)
+	}
+}
+
 func main() {
 	var min, max int
 	flag.Parse()
@@ -76,8 +95,21 @@ func main() {
 	if download != "-1" {
 		min, max = getRange(download)
 	}
-	fmt.Println(show, download, search, min, max)
-	addr := createAddr(SCHEME, HOST, PATH, search, 2)
-	_ = parse(addr)
-
+	path := PATH
+	if search == "" {
+		path = ""
+	}
+	addr := createAddr(SCHEME, HOST, path, search, 1)
+	body := getSiteBody(addr)
+	songs := getComposition(body, "div.musicset-track-list > div.musicset-track-list__items")
+	songs = trimSongs(songs)
+	if show {
+		showList(songs)
+	}
+	if download != "-1" {
+		if max == -1 {
+			max = len(songs)
+		}
+		saveCompositions(songs, min, max)
+	}
 }
