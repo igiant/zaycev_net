@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-ini/ini"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -22,7 +23,7 @@ func init() {
 	flag.BoolVar(&show, "show", false, "Показать список композиций")
 	flag.StringVar(&download, "d", "-1", "Диапазон загружаемых композиций")
 	flag.StringVar(&download, "download", "-1", "Диапазон загружаемых композиций")
-	p = readINI("zaycev_net.ini")
+	p = readINI(filepath.Join(filepath.Dir(os.Args[0]), "zaycev_net.ini"))
 }
 
 func printHelp() {

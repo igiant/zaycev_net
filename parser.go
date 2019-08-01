@@ -117,17 +117,26 @@ func saveFile(ch chan string, c composition) {
 		ch <- "Ошибка при сохранении файла: " + filename
 		return
 	}
-	ch <- filename + " сохранен,"
+	ch <- "'" + filename + "' сохранен..."
 }
 
 //getList возращает список композиций согласно запроса
 func saveCompositions(c compositions, min, max int) {
 	resultChan := make(chan string, max-min+1)
+	out := ""
+	left := 0
 	for i := min - 1; i < max; i++ {
 		go saveFile(resultChan, c[i])
 	}
+	fmt.Println("Скачивается файлов:", max-min+1)
 	for i := 0; i < max-min+1; i++ {
-		fmt.Println(<-resultChan)
+		out = <-resultChan
+		left = max - min - i
+		if left != 0 {
+			fmt.Printf("%s (осталось: %d)\n", out, left)
+		} else {
+			fmt.Println(out)
+		}
 	}
 	fmt.Println("Загрузки завершены!")
 }
