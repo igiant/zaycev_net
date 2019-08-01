@@ -78,6 +78,14 @@ func main() {
 	}
 	fmt.Println(show, download, search, min, max)
 	addr := createAddr(SCHEME, HOST, PATH, search, 2)
-	_ = parse(addr)
+	body := getSiteBody(addr)
+	songs := parse(body, "div.search-page__tracks > div > div.musicset-track-list__items")
+	if songs != nil && len(songs) > 0 {
+		for i, song := range songs {
+			if song.song != "" {
+				fmt.Println(i+1, song, song.url)
+			}
+		}
+	}
 
 }

@@ -39,9 +39,9 @@ func TestCreateAddr(t *testing.T) {
 		t.Errorf("Ожидалось %s, получили %s", result,
 			"http://zaycev.net/search.html?page=2&query_search=%D0%BE%D0%B4%D0%B8%D0%BD%2B%D0%B4%D0%B2%D0%B0%2B%D1%82%D1%80%D0%B8")
 	}
-	result = createAddr("https", "zaycev.net", "search.html", "123", 1)
-	if result != "https://zaycev.net/search.html?query_search=123" {
-		t.Errorf("Ожидалось %s, получили %s", result, "https://zaycev.net/search.html?query_search=123")
+	result = createAddr("https", "zaycev.net", "", "", 0)
+	if result != "https://zaycev.net" {
+		t.Errorf("Ожидалось %s, получили %s", result, "https://zaycev.net")
 	}
 }
 
