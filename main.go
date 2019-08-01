@@ -13,7 +13,9 @@ var (
 )
 
 const (
-	zaycev_net = "http://zaycev.net/search.html?query_search="
+	SCHEME = "http"
+	HOST   = "zaycev.net"
+	PATH   = "search.html"
 )
 
 func init() {
@@ -75,5 +77,7 @@ func main() {
 		min, max = getRange(download)
 	}
 	fmt.Println(show, download, search, min, max)
-	parser(zaycev_net + search)
+	addr := createAddr(SCHEME, HOST, PATH, search, 2)
+	_ = parse(addr)
+
 }
