@@ -28,3 +28,7 @@ func TestGetRange(t *testing.T) {
 		}
 	}
 }
+
+func TestParser(t *testing.T) {
+	//
+}

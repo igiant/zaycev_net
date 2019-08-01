@@ -12,6 +12,10 @@ var (
 	download string
 )
 
+const (
+	zaycev_net = "http://zaycev.net/search.html?query_search="
+)
+
 func init() {
 	flag.BoolVar(&show, "l", false, "Показать список найденных композиций")
 	flag.BoolVar(&show, "s", false, "Показать список найденных композиций")
@@ -33,15 +37,19 @@ func getRange(s string) (min, max int) {
 		if err != nil {
 			min = 1
 		}
-		max, err = strconv.Atoi(arrRange[1])
-		if err != nil {
-			max = 1
-		}
 		if min < 1 {
 			min = 1
 		}
-		if max < 1 {
-			max = min
+		if arrRange[1] == "" {
+			max = -1
+		} else {
+			max, err = strconv.Atoi(arrRange[1])
+			if err != nil {
+				max = 1
+			}
+			if max < 1 {
+				max = min
+			}
 		}
 		if max < min && max != -1 {
 			min, max = max, min
@@ -67,4 +75,5 @@ func main() {
 		min, max = getRange(download)
 	}
 	fmt.Println(show, download, search, min, max)
+	parser(zaycev_net + search)
 }
