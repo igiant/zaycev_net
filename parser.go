@@ -41,6 +41,7 @@ func createAddr(scheme, host, path, search string, page int) string {
 	if search != "" {
 		query.Set("query_search", search)
 	}
+	//TODO сделать парсинг с пагинацией
 	if page > 1 {
 		query.Add("page", strconv.Itoa(page))
 	}
@@ -61,17 +62,17 @@ func getComposition(body []byte, selector string) []composition {
 	}
 	result := make(compositions, 100)
 	document.Find(selector).Each(func(listIndex int, list *goquery.Selection) {
-		list.Find("div > div > div.musicset-track__artist > a").Each(func(itemIndex int, item *goquery.Selection) {
+		list.Find(p.artist).Each(func(itemIndex int, item *goquery.Selection) {
 			result[itemIndex].artist = strings.TrimSpace(item.Text())
 		})
-		list.Find("div > div > div.musicset-track__track-name > a").Each(func(itemIndex int, item *goquery.Selection) {
+		list.Find(p.song).Each(func(itemIndex int, item *goquery.Selection) {
 			result[itemIndex].song = strings.TrimSpace(item.Text())
 		})
-		list.Find("div > div > div.musicset-track__duration").Each(func(itemIndex int, item *goquery.Selection) {
+		list.Find(p.duration).Each(func(itemIndex int, item *goquery.Selection) {
 			result[itemIndex].duration = strings.TrimSpace(item.Text())
 		})
-		list.Find("div.musicset-track.clearfix").Each(func(itemIndex int, item *goquery.Selection) {
-			result[itemIndex].url = item.AttrOr("data-url", "")
+		list.Find(p.url).Each(func(itemIndex int, item *goquery.Selection) {
+			result[itemIndex].url = item.AttrOr(p.data, "")
 		})
 
 	})
@@ -104,7 +105,7 @@ func saveFile(ch chan string, c composition) {
 	for exists(filename) {
 		filename += "_"
 	}
-	addr := createAddr(SCHEME, HOST, c.url, "", 0)
+	addr := createAddr(p.scheme, p.host, c.url, "", 0)
 	fileAddr := getFileAddr(addr)
 	if fileAddr == "" {
 		ch <- "Ошибка при скачивании файла: " + filename

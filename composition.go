@@ -15,15 +15,19 @@ func (c composition) String() string {
 
 type compositions []composition
 
-func (c *compositions) fixLength() {
-	for i := range *c {
-		if (*c)[i].artist == "" && (*c)[i].song == "" && (*c)[i].url == "" {
-			*c = (*c)[:i]
-			return
-		}
-	}
-}
-
 type FileUrl struct {
 	Url string `json:"url"`
+}
+
+type params struct {
+	scheme   string
+	host     string
+	path     string
+	list     string
+	artist   string
+	song     string
+	duration string
+	url      string
+	data     string
+	chank    int
 }

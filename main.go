@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/go-ini/ini"
 	"os"
 	"strconv"
 	"strings"
@@ -11,13 +12,7 @@ import (
 var (
 	show     bool
 	download string
-)
-
-const (
-	SCHEME = "http"
-	HOST   = "zaycev.net"
-	PATH   = "search.html"
-	CHANK  = 20
+	p        params
 )
 
 func init() {
@@ -27,6 +22,7 @@ func init() {
 	flag.BoolVar(&show, "show", false, "Показать список композиций")
 	flag.StringVar(&download, "d", "-1", "Диапазон загружаемых композиций")
 	flag.StringVar(&download, "download", "-1", "Диапазон загружаемых композиций")
+	p = readINI("zaycev_net.ini")
 }
 
 func printHelp() {
@@ -89,13 +85,35 @@ func trimSongs(c compositions) compositions {
 func showList(c compositions) {
 	var s string
 	for i, song := range c {
-		if (i+1) != len(c) && (i+1)%CHANK == 0 {
+		if (i+1) != len(c) && (i+1)%p.chank == 0 {
 			fmt.Printf("%d. %s", i+1, song)
 			_, _ = fmt.Scanln(&s)
 			continue
 		}
 		fmt.Printf("%d. %s\n", i+1, song)
 	}
+}
+
+func readINI(filename string) params {
+	result := params{}
+	cfg, err := ini.Load(filename)
+	if err != nil {
+		return result
+	}
+	result.scheme = cfg.Section("url").Key("scheme").String()
+	result.host = cfg.Section("url").Key("host").String()
+	result.path = cfg.Section("url").Key("path").String()
+	result.list = cfg.Section("selectors").Key("list").String()
+	result.artist = cfg.Section("selectors").Key("artist").String()
+	result.song = cfg.Section("selectors").Key("song").String()
+	result.duration = cfg.Section("selectors").Key("duration").String()
+	result.url = cfg.Section("selectors").Key("url").String()
+	result.data = cfg.Section("selectors").Key("data").String()
+	result.chank, err = cfg.Section("output").Key("chank").Int()
+	if err != nil {
+		result.chank = 20
+	}
+	return result
 }
 
 func main() {
@@ -109,13 +127,13 @@ func main() {
 	if download != "-1" {
 		min, max = getRange(download)
 	}
-	path := PATH
+	path := p.path
 	if search == "" {
 		path = ""
 	}
-	addr := createAddr(SCHEME, HOST, path, search, 1)
+	addr := createAddr(p.scheme, p.host, path, search, 1)
 	body := getSiteBody(addr)
-	songs := getComposition(body, "div.musicset-track-list > div.musicset-track-list__items")
+	songs := getComposition(body, p.list)
 	songs = trimSongs(songs)
 	if show {
 		showList(songs)
