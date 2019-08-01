@@ -30,12 +30,9 @@ func init() {
 
 //getRange возвращает диапозон значений 'min', 'max' из строки 's', либо 1 значение, если в 's' не содержится диапозон
 func getRange(s string) (min, max int) {
-	var (
-		arrRange = []string{}
-		err      error
-	)
+	var err error
 	if strings.Contains(s, "-") {
-		arrRange = strings.Split(s, "-")
+		arrRange := strings.Split(s, "-")
 		min, err = strconv.Atoi(arrRange[0])
 		if err != nil {
 			min = 1
@@ -98,20 +95,21 @@ func main() {
 	if download != "-1" {
 		min, max = getRange(download)
 	}
-	fmt.Println(show, download, search, min, max)
-	addr := createAddr(SCHEME, HOST, PATH, search, 2)
+	path := PATH
+	if search == "" {
+		path = ""
+	}
+	addr := createAddr(SCHEME, HOST, path, search, 1)
 	body := getSiteBody(addr)
-	songs := getComposition(body, "div.search-page__tracks > div > div.musicset-track-list__items")
+	songs := getComposition(body, "div.musicset-track-list > div.musicset-track-list__items")
 	songs = trimSongs(songs)
 	if show {
 		showList(songs)
 	}
-	//if songs != nil && lensongs > 0 {
-	//	for i, song := range songs {
-	//		if song.song != "" {
-	//			fmt.Println(i+1, song, song.url)
-	//		}
-	//	}
-	//}
-
+	if download != "-1" {
+		if max == -1 {
+			max = len(songs)
+		}
+		saveCompositions(songs, min, max)
+	}
 }

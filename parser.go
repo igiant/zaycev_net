@@ -2,7 +2,10 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -25,6 +28,7 @@ func getSiteBody(addr string) []byte {
 		return nil
 	}
 	body, err := ioutil.ReadAll(resp.Body)
+	defer func() { _ = resp.Body.Close() }()
 	if err != nil || resp.StatusCode != 200 {
 		return nil
 	}
@@ -55,7 +59,7 @@ func getComposition(body []byte, selector string) []composition {
 	if err != nil {
 		return nil
 	}
-	result := make(compositions, 50)
+	result := make(compositions, 100)
 	document.Find(selector).Each(func(listIndex int, list *goquery.Selection) {
 		list.Find("div > div > div.musicset-track__artist > a").Each(func(itemIndex int, item *goquery.Selection) {
 			result[itemIndex].artist = strings.TrimSpace(item.Text())
@@ -74,7 +78,55 @@ func getComposition(body []byte, selector string) []composition {
 	return result
 }
 
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func getFileAddr(addr string) string {
+	body := getSiteBody(addr)
+	fileAddr := FileUrl{}
+	err := json.Unmarshal(body, &fileAddr)
+	if err != nil {
+		return ""
+	}
+	return fileAddr.Url
+}
+
+func saveFile(ch chan string, c composition) {
+	filename := fmt.Sprintf("%s – %s.mp3", c.artist, c.song)
+	for exists(filename) {
+		filename += "_"
+	}
+	addr := createAddr(SCHEME, HOST, c.url, "", 0)
+	fileAddr := getFileAddr(addr)
+	if fileAddr == "" {
+		ch <- "Ошибка при скачивании файла: " + filename
+		return
+	}
+	body := getSiteBody(fileAddr)
+	err := ioutil.WriteFile(filename, body, 0664)
+	if err != nil {
+		ch <- "Ошибка при сохранении файла: " + filename
+		return
+	}
+	ch <- filename + " сохранен,"
+}
+
 //getList возращает список композиций согласно запроса
 func saveCompositions(c compositions, min, max int) {
-
+	resultChan := make(chan string, max-min+1)
+	for i := min - 1; i < max; i++ {
+		go saveFile(resultChan, c[i])
+	}
+	for i := 0; i < max-min+1; i++ {
+		fmt.Println(<-resultChan)
+	}
+	fmt.Println("Загрузки завершены!")
 }

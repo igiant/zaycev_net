@@ -23,3 +23,7 @@ func (c *compositions) fixLength() {
 		}
 	}
 }
+
+type FileUrl struct {
+	Url string `json:"url"`
+}
