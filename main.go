@@ -16,6 +16,7 @@ const (
 	SCHEME = "http"
 	HOST   = "zaycev.net"
 	PATH   = "search.html"
+	CHANK  = 20
 )
 
 func init() {
@@ -69,6 +70,27 @@ func getRange(s string) (min, max int) {
 	return min, max
 }
 
+func trimSongs(c compositions) compositions {
+	for i := range c {
+		if c[i].artist == "" && c[i].song == "" && c[i].url == "" {
+			return c[:i]
+		}
+	}
+	return c
+}
+
+func showList(c compositions) {
+	var s string
+	for i, song := range c {
+		if (i+1) != len(c) && (i+1)%CHANK == 0 {
+			fmt.Printf("%d. %s", i+1, song)
+			_, _ = fmt.Scanln(&s)
+			continue
+		}
+		fmt.Printf("%d. %s\n", i+1, song)
+	}
+}
+
 func main() {
 	var min, max int
 	flag.Parse()
@@ -79,13 +101,17 @@ func main() {
 	fmt.Println(show, download, search, min, max)
 	addr := createAddr(SCHEME, HOST, PATH, search, 2)
 	body := getSiteBody(addr)
-	songs := parse(body, "div.search-page__tracks > div > div.musicset-track-list__items")
-	if songs != nil && len(songs) > 0 {
-		for i, song := range songs {
-			if song.song != "" {
-				fmt.Println(i+1, song, song.url)
-			}
-		}
+	songs := getComposition(body, "div.search-page__tracks > div > div.musicset-track-list__items")
+	songs = trimSongs(songs)
+	if show {
+		showList(songs)
 	}
+	//if songs != nil && lensongs > 0 {
+	//	for i, song := range songs {
+	//		if song.song != "" {
+	//			fmt.Println(i+1, song, song.url)
+	//		}
+	//	}
+	//}
 
 }

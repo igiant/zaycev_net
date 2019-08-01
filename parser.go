@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"strings"
 
@@ -11,19 +10,6 @@ import (
 	"net/url"
 	"strconv"
 )
-
-type composition struct {
-	artist   string
-	song     string
-	duration string
-	url      string
-}
-
-func (c composition) String() string {
-	return fmt.Sprintf("%s – %s (%s)", c.artist, c.song, c.duration)
-}
-
-type compositions []composition
 
 //parse - получение содержимого страницы по адресу
 func getSiteBody(addr string) []byte {
@@ -63,13 +49,13 @@ func createAddr(scheme, host, path, search string, page int) string {
 	return u.String()
 }
 
-func parse(body []byte, selector string) []composition {
+func getComposition(body []byte, selector string) []composition {
 	reader := bytes.NewReader(body)
 	document, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
 		return nil
 	}
-	result := make(compositions, 40)
+	result := make(compositions, 50)
 	document.Find(selector).Each(func(listIndex int, list *goquery.Selection) {
 		list.Find("div > div > div.musicset-track__artist > a").Each(func(itemIndex int, item *goquery.Selection) {
 			result[itemIndex].artist = strings.TrimSpace(item.Text())
@@ -89,6 +75,6 @@ func parse(body []byte, selector string) []composition {
 }
 
 //getList возращает список композиций согласно запроса
-func getList(query string, min, max int) []string {
-	return []string{}
+func saveCompositions(c compositions, min, max int) {
+
 }
