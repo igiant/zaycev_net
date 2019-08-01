@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -20,12 +21,21 @@ const (
 )
 
 func init() {
-	flag.BoolVar(&show, "l", false, "Показать список найденных композиций")
-	flag.BoolVar(&show, "s", false, "Показать список найденных композиций")
-	flag.BoolVar(&show, "list", false, "Показать список найденных композиций")
-	flag.BoolVar(&show, "show", false, "Показать список найденных композиций")
-	flag.StringVar(&download, "d", "1", "Диапозон загружаемых композиций: '1-3' or '1' or '1-'")
-	flag.StringVar(&download, "download", "-1", "Диапозон загружаемых композиций: '1-3' or '1' or '1-'")
+	flag.BoolVar(&show, "l", false, "Показать список композиций")
+	flag.BoolVar(&show, "s", false, "Показать список композиций")
+	flag.BoolVar(&show, "list", false, "Показать список композиций")
+	flag.BoolVar(&show, "show", false, "Показать список композиций")
+	flag.StringVar(&download, "d", "-1", "Диапазон загружаемых композиций")
+	flag.StringVar(&download, "download", "-1", "Диапазон загружаемых композиций")
+}
+
+func printHelp() {
+	fmt.Println("\n Параметры запуска:\n")
+	fmt.Println(" ––––––––––––––––––\n")
+
+	fmt.Println("  '-l (-s, --show, --list) <параметры поиска>' - Показать список найденных композиций\n")
+	fmt.Println("  '-d=<от>-<до> (--download=<от>-<до>) <параметры поиска>' - Загрузить песни в указанном диапазоне")
+
 }
 
 //getRange возвращает диапозон значений 'min', 'max' из строки 's', либо 1 значение, если в 's' не содержится диапозон
@@ -89,6 +99,10 @@ func showList(c compositions) {
 }
 
 func main() {
+	if len(os.Args) == 1 {
+		printHelp()
+		return
+	}
 	var min, max int
 	flag.Parse()
 	search := strings.Join(flag.Args(), "+")
