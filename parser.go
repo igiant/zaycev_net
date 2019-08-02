@@ -128,7 +128,7 @@ func saveCompositions(c compositions, min, max int) {
 	for i := min - 1; i < max; i++ {
 		go saveFile(resultChan, c[i])
 	}
-	fmt.Println("Скачивается файлов:", max-min+1)
+	fmt.Printf("Скачивается %d %s:\n", max-min+1, enditive(max-min+1, "файл", "файла", "файлов"))
 	for i := 0; i < max-min+1; i++ {
 		out = <-resultChan
 		left = max - min - i
@@ -139,4 +139,22 @@ func saveCompositions(c compositions, min, max int) {
 		}
 	}
 	fmt.Println("Загрузки завершены!")
+}
+
+// enditive возвращает правильную форму существительного в зависимости от числа num
+// form1 - соответствует 1 шт, form2 - соответствует от 2 до 4 шт, form3 - остальные
+// например Enditive(119, "яблоко", "яблока", "яблок") вернет "яблок"
+func enditive(num int, form1, form2, form3 string) string {
+	mod := num % 100
+	if mod >= 11 && mod <= 20 {
+		return form3
+	}
+	mod = num % 10
+	if mod == 0 || mod >= 5 {
+		return form3
+	}
+	if mod == 1 {
+		return form1
+	}
+	return form2
 }

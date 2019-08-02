@@ -26,15 +26,6 @@ func init() {
 	p = readINI(filepath.Join(filepath.Dir(os.Args[0]), "zaycev_net.ini"))
 }
 
-func printHelp() {
-	fmt.Println("\n Параметры запуска:\n")
-	fmt.Println(" ––––––––––––––––––\n")
-
-	fmt.Println("  '-l (-s, --show, --list) <параметры поиска>' - Показать список найденных композиций\n")
-	fmt.Println("  '-d=<от>-<до> (--download=<от>-<до>) <параметры поиска>' - Загрузить песни в указанном диапазоне")
-
-}
-
 //getRange возвращает диапозон значений 'min', 'max' из строки 's', либо 1 значение, если в 's' не содержится диапозон
 func getRange(s string) (min, max int) {
 	var err error
@@ -119,8 +110,7 @@ func readINI(filename string) params {
 
 func main() {
 	if len(os.Args) == 1 {
-		printHelp()
-		return
+		show = true
 	}
 	var min, max int
 	flag.Parse()
