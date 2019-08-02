@@ -45,6 +45,36 @@ func TestCreateAddr(t *testing.T) {
 	}
 }
 
-func TestParse(t *testing.T) {
-	//
+func TestEnditive(t *testing.T) {
+	type testData struct {
+		count  int
+		form1  string
+		form2  string
+		form3  string
+		result string
+	}
+	var datas = []testData{
+		{1, "1", "2", "3", "1"},
+		{5, "1", "2", "3", "3"},
+		{11, "1", "2", "3", "3"},
+		{2, "1", "2", "3", "2"},
+		{1001, "1", "2", "3", "1"},
+		{0, "1", "2", "3", "3"},
+		{21, "1", "2", "3", "1"},
+		{100000054, "1", "2", "3", "2"},
+	}
+	var result string
+	for _, data := range datas {
+		result = enditive(data.count, data.form1, data.form2, data.form3)
+		if result != data.result {
+			t.Errorf("Ожидалось %s, получили %s = enditive(%d, %s, %s, %s)",
+				data.result,
+				result,
+				data.count,
+				data.form1,
+				data.form2,
+				data.form3,
+			)
+		}
+	}
 }
