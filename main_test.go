@@ -79,13 +79,21 @@ func TestEnditive(t *testing.T) {
 	}
 }
 
-func TestReadINI(t *testing.T)  {
+func TestReadINI(t *testing.T) {
 	result := readINI("zaycev_net.ini")
 	if result.scheme == "" || result.host == "" ||
-	   result.path == "" || result.list == "" ||
-	   result.artist == "" || result.song == "" ||
-	   result.duration == "" || result.url == "" ||
-	   result.data == "" || result.chank == 0 {
-			t.Errorf("Неправильное чтение ini-файла")
-	   }
+		result.path == "" || result.list == "" ||
+		result.artist == "" || result.song == "" ||
+		result.duration == "" || result.url == "" ||
+		result.data == "" || result.chank == 0 {
+		t.Error("Неправильное чтение ini-файла")
+	}
+}
+
+func TestGetSiteBody(t *testing.T) {
+	p := readINI("zaycev_net.ini")
+	addr := createAddr(p.scheme, p.host, "", "", 0)
+	if getSiteBody(addr) == nil {
+		t.Errorf("Проблема с получением содержимого сайта %s", addr)
+	}
 }
