@@ -5,26 +5,24 @@ import "testing"
 func TestGetRange(t *testing.T) {
 	type Test struct {
 		value string
-		min   int
-		max   int
+		result []int
 	}
 	var arrTests = []Test{
-		{"1", 1, 1},
-		{"1-5", 1, 5},
-		{"0", 1, 1},
-		{"7", 7, 7},
-		{"5-", 5, -1},
-		{"-3", 1, 3},
-		{"5-1", 1, 5},
-		{"-1-1", 1, 1},
-		{"a-b", 1, 1},
+		{"1", []int{1}},
+		{"1-5", []int{1, 2, 3, 4, 5}},
+		{"0", []int{1}},
+		{"1,5,3-7", []int{1, 3, 4, 5, 6, 7}},
+		{"5-", []int{1}},
+		{"-3", []int{1}},
+		{"5-1", []int{1, 2, 3, 4, 5}},
+		{"-1-1", []int{1}},
+		{"a-b", []int{1}},
 	}
-	var resMin, resMax int
+	var result []int
 	for _, test := range arrTests {
-		resMin, resMax = getRange(test.value)
-		if resMin != test.min || resMax != test.max {
-			t.Errorf("Ожидалось (%d, %d), получили (%d, %d) = getRange(%s)",
-				test.min, test.max, resMin, resMax, test.value)
+		result = getRange(test.value)
+		if !compareIntSlice(result, test.result) {
+			t.Errorf("Ожидалось %v, получили %v = getRange(%s)", test.result, result, test.value)
 		}
 	}
 }
@@ -48,32 +46,30 @@ func TestCreateAddr(t *testing.T) {
 func TestEnditive(t *testing.T) {
 	type testData struct {
 		count  int
-		form1  string
-		form2  string
-		form3  string
+		forms [3]string
 		result string
 	}
 	var datas = []testData{
-		{1, "1", "2", "3", "1"},
-		{5, "1", "2", "3", "3"},
-		{11, "1", "2", "3", "3"},
-		{2, "1", "2", "3", "2"},
-		{1001, "1", "2", "3", "1"},
-		{0, "1", "2", "3", "3"},
-		{21, "1", "2", "3", "1"},
-		{100000054, "1", "2", "3", "2"},
+		{1, [3]string{"1", "2", "3"}, "1"},
+		{5, [3]string{"1", "2", "3"}, "3"},
+		{11, [3]string{"1", "2", "3"}, "3"},
+		{2, [3]string{"1", "2", "3"}, "2"},
+		{1001, [3]string{"1", "2", "3"}, "1"},
+		{0, [3]string{"1", "2", "3"}, "3"},
+		{21, [3]string{"1", "2", "3"}, "1"},
+		{100000054, [3]string{"1", "2", "3"}, "2"},
 	}
 	var result string
 	for _, data := range datas {
-		result = enditive(data.count, data.form1, data.form2, data.form3)
+		result = enditive(data.count, data.forms[0], data.forms[1], data.forms[2])
 		if result != data.result {
 			t.Errorf("Ожидалось %s, получили %s = enditive(%d, %s, %s, %s)",
 				data.result,
 				result,
 				data.count,
-				data.form1,
-				data.form2,
-				data.form3,
+				data.forms[0],
+				data.forms[1],
+				data.forms[2],
 			)
 		}
 	}
@@ -95,5 +91,37 @@ func TestGetSiteBody(t *testing.T) {
 	addr := createAddr(p.scheme, p.host, "", "", 0)
 	if getSiteBody(addr) == nil {
 		t.Errorf("Проблема с получением содержимого сайта %s", addr)
+	}
+}
+
+func compareIntSlice(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func TestSliceIsSorted(t *testing.T) {
+	type data struct {
+		value []int
+		result bool
+	}
+	var datas = []data{
+		{[]int{1, 3, 5}, true},
+		{[]int{1, 1, 1}, true},
+		{[]int{1, 3, 2}, false},
+		{[]int{3, 2, 1}, false},
+		{[]int{2, 2, 3}, true},
+	}
+	for _, item := range datas {
+		result := sliceIsSorted(item.value) 
+		if result != item.result {
+			t.Errorf("Ожидалось %v, получили %v при %v", item.result, result, item.value)
+		}
 	}
 }

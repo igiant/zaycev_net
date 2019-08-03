@@ -4,48 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 )
-
-//getRange возвращает диапозон значений 'min', 'max' из строки 's', либо 1 значение, если в 's' не содержится диапозон
-func getRange(s string) (min, max int) {
-	var err error
-	if strings.Contains(s, "-") {
-		arrRange := strings.Split(s, "-")
-		min, err = strconv.Atoi(arrRange[0])
-		if err != nil {
-			min = 1
-		}
-		if min < 1 {
-			min = 1
-		}
-		if arrRange[1] == "" {
-			max = -1
-		} else {
-			max, err = strconv.Atoi(arrRange[1])
-			if err != nil {
-				max = 1
-			}
-			if max < 1 {
-				max = min
-			}
-		}
-		if max < min && max != -1 {
-			min, max = max, min
-		}
-	} else {
-		min, err = strconv.Atoi(s)
-		if err != nil {
-			min = 1
-		}
-		if min < 1 {
-			min = 1
-		}
-		max = min
-	}
-	return min, max
-}
 
 func showList(c compositions) {
 	var s string
@@ -60,14 +20,14 @@ func showList(c compositions) {
 }
 
 func main() {
+	flag.Parse()
 	if len(os.Args) == 1 {
 		show = true
 	}
-	var min, max int
-	flag.Parse()
 	search := strings.Join(flag.Args(), "+")
+	var songsList []int
 	if download != "-1" {
-		min, max = getRange(download)
+		songsList = getRange(download)
 	}
 	path := p.path
 	if search == "" {
@@ -80,9 +40,6 @@ func main() {
 		showList(songs)
 	}
 	if download != "-1" {
-		if max == -1 {
-			max = len(songs)
-		}
-		saveCompositions(songs, min, max)
+		saveCompositions(songs, songsList)
 	}
 }

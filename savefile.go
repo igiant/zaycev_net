@@ -6,17 +6,17 @@ import (
 	"os"
 )
 
-func saveCompositions(c compositions, min, max int) {
-	resultChan := make(chan string, max-min+1)
+func saveCompositions(c compositions, arr []int) {
+	resultChan := make(chan string, len(arr))
 	out := ""
 	left := 0
-	for i := min - 1; i < max; i++ {
-		go saveFile(resultChan, c[i])
+	for _, num := range arr {
+		go saveFile(resultChan, c[num-1])
 	}
-	fmt.Printf("Скачивается %d %s:\n", max-min+1, enditive(max-min+1, "файл", "файла", "файлов"))
-	for i := 0; i < max-min+1; i++ {
+	fmt.Printf("Скачивается %d %s:\n", len(arr), enditive(len(arr), "файл", "файла", "файлов"))
+	for i := 0; i < len(arr); i++ {
 		out = <-resultChan
-		left = max - min - i
+		left = len(arr) - 1 - i
 		if left != 0 {
 			fmt.Printf("%s (осталось: %d)\n", out, left)
 		} else {
