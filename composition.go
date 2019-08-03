@@ -15,8 +15,9 @@ func (c composition) String() string {
 
 type compositions []composition
 
-type FileUrl struct {
-	Url string `json:"url"`
+//FileURL - получение ссылки на композицию
+type FileURL struct {
+	SongURL string `json:"url"`
 }
 
 type params struct {
