@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-
-
 //getRange возвращает диапозон значений 'min', 'max' из строки 's', либо 1 значение, если в 's' не содержится диапозон
 func getRange(s string) (min, max int) {
 	var err error
@@ -60,8 +58,6 @@ func showList(c compositions) {
 		fmt.Printf("%d. %s\n", i+1, song)
 	}
 }
-
-
 
 func main() {
 	if len(os.Args) == 1 {

@@ -78,3 +78,14 @@ func TestEnditive(t *testing.T) {
 		}
 	}
 }
+
+func TestReadINI(t *testing.T)  {
+	result := readINI("zaycev_net.ini")
+	if result.scheme == "" || result.host == "" ||
+	   result.path == "" || result.list == "" ||
+	   result.artist == "" || result.song == "" ||
+	   result.duration == "" || result.url == "" ||
+	   result.data == "" || result.chank == 0 {
+			t.Errorf("Неправильное чтение ini-файла")
+	   }
+}
