@@ -29,7 +29,7 @@ func saveCompositions(c compositions, arr []int) {
 func saveFile(ch chan string, c composition) {
 	filename := fmt.Sprintf("%s – %s.mp3", c.artist, c.song)
 	for exists(filename) {
-		filename += "_"
+		filename = "_" + filename
 	}
 	addr := createAddr(p.scheme, p.host, c.url, "", 0)
 	fileAddr := getFileAddr(addr)
