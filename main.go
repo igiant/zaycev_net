@@ -36,6 +36,10 @@ func main() {
 	addr := createAddr(p.scheme, p.host, path, search, 1)
 	body := getSiteBody(addr)
 	songs := getComposition(body, p.list)
+	if len(songs) == 0 {
+		fmt.Println("Композиций не найдено.")
+		os.Exit(1)
+	}
 	if show {
 		showList(songs)
 	}

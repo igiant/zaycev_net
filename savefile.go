@@ -38,7 +38,7 @@ func saveFile(ch chan string, c composition) {
 		return
 	}
 	body := getSiteBody(fileAddr)
-	err := ioutil.WriteFile(filename, body, 0664)
+	err := ioutil.WriteFile(filename, body, 0644)
 	if err != nil {
 		ch <- "Ошибка при сохранении файла: " + filename
 		return
